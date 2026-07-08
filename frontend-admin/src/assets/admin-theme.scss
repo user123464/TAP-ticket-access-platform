@@ -1,0 +1,378 @@
+// =========================================================================
+// admin-theme.scss — TAP Admin 後台 Dark Theme 設計系統
+//
+// 結構：
+// 1. Bootstrap Sass 變數覆寫（一定要在 import bootstrap 前）
+// 2. import bootstrap
+// 3. --tap-* 調色盤 CSS 變數（依開發日誌色彩規範）
+// 4. Bootstrap 5.3 Dark Mode（data-bs-theme="dark"）變數對映
+// 5. 全域元件深色微調（卡片 / 表格 / 表單 / 下拉 / 滾動條）
+// 6. 通用輔助 class
+// =========================================================================
+
+// 1. 先覆寫變數（一定要在 import bootstrap 前）
+$primary: #e57346; // 暖橘：主要按鈕、Active 狀態
+$success: #34d399; // 莫蘭迪綠：通過、成功
+$danger: #f87171; // 莫蘭迪紅：退件、失敗、錯誤
+$warning: #fbbf24; // 莫蘭迪黃：處理中、警告
+$info: #38bdf8; // 莫蘭迪藍：唯讀資訊、說明
+$secondary: #94a3b8; // 次要文字藍灰
+$body-bg: #0f172a; // 最深底色
+$body-color: #f8fafc; // 主要文字
+
+// 調整圓角半徑，避免過大圓角顯得像學生 Demo 網站，統一為企業級質感
+$border-radius: 0.375rem; // 預設 6px
+$border-radius-sm: 0.25rem; // 預設 4px
+$border-radius-lg: 0.375rem; // 調整為 6px
+$border-radius-xl: 0.5rem; // 將原本 rounded-4 (1rem/16px) 全域調降為 8px
+
+// 調整表格單元格內邊距，提升資訊密度
+$table-cell-padding-y: 0.4rem; // 緊湊: py-2 級別
+$table-cell-padding-x: 1rem; // px-3 級別
+
+// 2. 再引入 bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// 3. 設計調色盤（顏色建議從這裡選）
+:root {
+  /* 品牌主色 */
+  --tap-primary: #e57346;
+  /* 暖橘：主要按鈕、Active 狀態、重點強調 */
+
+  /* 深色背景層次 (Dark Surfaces) */
+  --tap-bg-base: #0f172a;
+  /* 最深底色：全域大背景 */
+  --tap-bg-surface: #1e293b;
+  /* 卡片底色：側欄底色、區塊底色 */
+  --tap-bg-hover: #334155;
+  /* 懸停色：按鈕 hover、表格斑馬紋 */
+
+  /* 文字與圖示 (Typography) */
+  --tap-text-primary: #f8fafc;
+  /* 主要文字：高對比度 */
+  --tap-text-secondary: #94a3b8;
+  /* 次要文字：確保 A11y 無障礙閱讀 */
+
+  /* 邊框與分隔線 (Borders) */
+  --tap-border: #475569;
+  /* 深色專用邊框：融入深色背景不刺眼 */
+
+  /* 系統狀態色 (System Status) */
+  --tap-success: #34d399;
+  /* 莫蘭迪綠：通過、成功 */
+  --tap-error: #f87171;
+  /* 莫蘭迪紅：退件、失敗、錯誤 */
+}
+
+// 4. Bootstrap 5.3 Dark Mode 變數對映
+//    index.html 的 <html data-bs-theme="dark"> 啟用後，
+//    表單 / Modal / Dropdown / Table 等元件自動套用深色，再以 --tap-* 統一色票。
+[data-bs-theme="dark"] {
+  --bs-body-bg: var(--tap-bg-base);
+  --bs-body-color: var(--tap-text-primary);
+  --bs-secondary-color: var(--tap-text-secondary);
+  --bs-tertiary-bg: var(--tap-bg-surface);
+  --bs-secondary-bg: var(--tap-bg-hover);
+  --bs-border-color: var(--tap-border);
+  --bs-emphasis-color: #ffffff;
+  --bs-link-color: var(--tap-primary);
+  --bs-link-hover-color: #{lighten(#e57346, 10%)};
+
+  // Morandi color scheme overrides
+  --bs-success: #34d399;
+  --bs-danger: #f87171;
+  --bs-warning: #fbbf24;
+  --bs-info: #38bdf8;
+
+  --bs-success-bg-subtle: rgba(52, 211, 153, 0.25);
+  --bs-success-text-emphasis: #34d399;
+  --bs-success-border-subtle: rgba(52, 211, 153, 0.6);
+
+  --bs-danger-bg-subtle: rgba(248, 113, 113, 0.25);
+  --bs-danger-text-emphasis: #f87171;
+  --bs-danger-border-subtle: rgba(248, 113, 113, 0.6);
+
+  --bs-warning-bg-subtle: rgba(251, 191, 36, 0.25);
+  --bs-warning-text-emphasis: #fbbf24;
+  --bs-warning-border-subtle: rgba(251, 191, 36, 0.6);
+
+  --bs-info-bg-subtle: rgba(56, 189, 248, 0.25);
+  --bs-info-text-emphasis: #38bdf8;
+  --bs-info-border-subtle: rgba(56, 189, 248, 0.6);
+
+  --bs-primary-bg-subtle: rgba(229, 115, 70, 0.25);
+  --bs-primary-text-emphasis: #ffd2c2;
+  --bs-primary-border-subtle: rgba(229, 115, 70, 0.6);
+
+  --bs-secondary-bg-subtle: rgba(148, 163, 184, 0.25);
+  --bs-secondary-text-emphasis: #cbd5e1;
+  --bs-secondary-border-subtle: rgba(148, 163, 184, 0.6);
+}
+
+// 5. 全域元件深色微調
+// 卡片：統一使用 surface 層 + 深色邊框
+.card {
+  --bs-card-bg: var(--tap-bg-surface);
+  --bs-card-border-color: var(--tap-border);
+  --bs-card-cap-bg: var(--tap-bg-surface);
+}
+
+// 表格：深色表頭 + 斑馬紋使用 hover 層
+.table {
+  --bs-table-bg: var(--tap-bg-surface);
+  --bs-table-color: var(--tap-text-primary);
+  --bs-table-border-color: var(--tap-border);
+  --bs-table-striped-bg: rgba(51, 65, 85, 0.45);
+  /* --tap-bg-hover 半透明 */
+  --bs-table-striped-color: var(--tap-text-primary);
+  --bs-table-hover-bg: var(--tap-bg-hover);
+  --bs-table-hover-color: var(--tap-text-primary);
+}
+
+// 表單控制項：深色輸入框
+.form-control,
+.form-select {
+  background-color: var(--tap-bg-base);
+  border-color: var(--tap-border);
+  color: var(--tap-text-primary);
+
+  &:focus {
+    background-color: var(--tap-bg-base);
+    border-color: var(--tap-primary);
+    color: var(--tap-text-primary);
+    box-shadow: 0 0 0 0.25rem rgba(229, 115, 70, 0.25);
+  }
+
+  &::placeholder {
+    color: var(--tap-text-secondary);
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    background-color: var(--tap-bg-hover);
+    opacity: 0.6;
+  }
+}
+
+// Modal 與 Dropdown：surface 層
+.modal-content {
+  background-color: var(--tap-bg-surface);
+  border: 1px solid var(--tap-border);
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--tap-bg-surface);
+  --bs-dropdown-border-color: var(--tap-border);
+  --bs-dropdown-link-color: var(--tap-text-primary);
+  --bs-dropdown-link-hover-bg: var(--tap-bg-hover);
+  --bs-dropdown-link-hover-color: var(--tap-text-primary);
+  --bs-dropdown-header-color: var(--tap-text-secondary);
+}
+
+// 分頁元件
+.pagination {
+  --bs-pagination-bg: var(--tap-bg-surface);
+  --bs-pagination-border-color: var(--tap-border);
+  --bs-pagination-color: var(--tap-text-primary);
+  --bs-pagination-hover-bg: var(--tap-bg-hover);
+  --bs-pagination-hover-color: var(--tap-text-primary);
+  --bs-pagination-hover-border-color: var(--tap-border);
+  --bs-pagination-focus-bg: var(--tap-bg-hover);
+  --bs-pagination-focus-color: var(--tap-text-primary);
+  --bs-pagination-active-bg: var(--tap-primary);
+  --bs-pagination-active-border-color: var(--tap-primary);
+  --bs-pagination-disabled-bg: var(--tap-bg-surface);
+  --bs-pagination-disabled-color: var(--tap-text-secondary);
+  --bs-pagination-disabled-border-color: var(--tap-border);
+}
+
+// 全域滾動條深色美化（Webkit）
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--tap-bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--tap-bg-hover);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--tap-border);
+  }
+}
+
+// 6. 通用輔助 class
+/* 統一的聚焦外框樣式 (Focus Ring) - 使用專案 primary 主色 */
+.focus-ring:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba($primary, 0.25) !important;
+  border-color: $primary !important;
+}
+
+/* 虛線邊框，通用於拖曳上傳框或特殊引導卡片 */
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 2px !important;
+  border-color: var(--tap-border) !important;
+}
+
+/* 指標手勢 */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* 微動畫效果：滑過卡片向上微移及陰影（深色版陰影加重） */
+.hover-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 次要文字輔助 class（對映 --tap-text-secondary） */
+.text-tap-secondary {
+  color: var(--tap-text-secondary) !important;
+}
+
+/* 二級（次層）頁籤容器：與第一層頁籤建立清晰父子層級。
+   上方淡分隔線 + 間距，全站具雙層頁籤頁面共用（KYC / 客服 / 通知日誌等）。 */
+.tab-container-nested {
+  border-top: 1px solid var(--tap-border);
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  .nav-pills .nav-link {
+    border: 1px solid var(--tap-primary) !important;
+    background-color: transparent;
+    transition: all 0.15s ease-in-out;
+    width: 90px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    &:hover {
+      background-color: rgba(229, 115, 70, 0.15);
+    }
+
+    &.active {
+      border-color: var(--tap-primary) !important;
+      background-color: var(--tap-primary) !important;
+      color: #fff !important;
+    }
+  }
+}
+
+/* 純圖示按鈕：表格操作欄共用，固定方形、置中圖示，避免文字換行跑版 */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-icon>i {
+  font-size: 0.95rem;
+}
+
+/* 列印保底樣式：PDF 匯出本身使用獨立 iframe（自帶列印樣式），
+   此區塊僅在使用者於主畫面直接 Ctrl+P 時，輸出為淺色、無導覽列的版面。
+   元件可加 .d-print-none（Bootstrap 內建）排除於列印之外。 */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .admin-navbar,
+  .admin-sidebar,
+  .btn,
+  .pagination {
+    display: none !important;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+// 7. 緊湊模式 (Compact Mode) 控制類
+// 套用於 .container-fluid 以增加資訊密度
+.admin-compact {
+  padding-top: 1rem !important; // py-3
+  padding-bottom: 1rem !important; // py-3
+  padding-left: 1.5rem !important; // px-4
+  padding-right: 1.5rem !important; // px-4
+
+  // 調降卡片 padding、margin 與 圓角、陰影
+  .card {
+    margin-bottom: 1rem !important;
+    border-radius: var(--bs-border-radius-sm) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important; // shadow-sm
+
+    .card-body {
+      padding: 0.75rem !important; // 縮小 padding
+    }
+
+    .card-header {
+      padding: 0.75rem 1rem !important;
+    }
+  }
+
+  // 網格內的卡片下外邊距設為 0，避免與 Bootstrap gutters 重疊造成間距跑版與高度對齊問題
+  .row .card {
+    margin-bottom: 0 !important;
+  }
+
+  // 區塊間距與頁首高度壓縮
+  h1,
+  h2,
+  h3,
+  h4,
+  .h1,
+  .h2,
+  .h3,
+  .h4 {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* 修正 .btn-icon 圖示垂直偏移問題 */
+.btn-icon>i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon>i::before {
+  vertical-align: 0 !important;
+}
+
+/* 詳情頁標題列對齊微調 */
+.detail-header-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  /* mb-4 */
+  flex-wrap: wrap;
+
+  h4 {
+    margin-bottom: 0 !important;
+  }
+}

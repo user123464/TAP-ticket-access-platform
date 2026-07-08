@@ -1,0 +1,41 @@
+{
+  "name": "labvue-admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:online": "vite --mode online",
+    "build": "vite build",
+    "build:online": "vite build --mode online",
+    "preview": "vite preview --host --port 5174",
+    "demo": "npm run build:online && npm run preview"
+  },
+  "dependencies": {
+    "@panzoom/panzoom": "^4.6.2",
+    "axios": "^1.17.0",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.4.7",
+    "dayjs": "^1.11.13",
+    "markdown-it": "^14.1.0",
+    "md-editor-v3": "^5.8.4",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "sweetalert2": "^11.26.25",
+    "vue": "^3.5.32",
+    "vue-chartjs": "^5.3.2",
+    "vue-router": "^5.1.0",
+    "vuejs-paginate-next": "^1.0.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.6",
+    "sass": "^1.83.4",
+    "vite": "^8.0.8",
+    "vite-plugin-vue-devtools": "^8.1.1"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

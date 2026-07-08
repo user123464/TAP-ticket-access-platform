@@ -1,0 +1,80 @@
+services:
+
+  sqlserver:
+    build:
+      context: ./sqlserver
+
+    container_name: sqlserver
+
+    restart: unless-stopped
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "P@ssw0rd"
+      TZ: "Asia/Taipei"
+
+    ports:
+      - "9433:1433"
+
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+    networks:
+      - tap-network
+
+  redis:
+    image: redis:8.2
+    container_name: redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-auth_dev_pwd}
+    environment:
+      TZ: "Asia/Taipei"
+    ports:
+      - "9979:6379"
+    volumes:
+      - redis_data:/redis
+    networks:
+      - tap-network
+
+  rabbitmq:
+    image: rabbitmq:4.2.7-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      TZ: "Asia/Taipei"
+    ports:
+      # 圖形化介面 port 
+      - "15672:15672"
+      # MQ 本體 port
+      - "5672:5672"  
+      # prometheus 插件 port
+      - "15692:15692"
+    volumes:
+      - rabbitmq_data:/rabbitmq
+    networks:
+      - tap-network
+
+  maildev:
+    image: maildev/maildev:latest
+    container_name: auth-maildev
+    restart: unless-stopped
+    environment:
+      TZ: "Asia/Taipei"
+    ports:
+      - "9025:1025"
+      - "9080:1080"
+    volumes:
+       - maildev_data:/maildev
+    networks:
+      - tap-network
+
+networks:
+  tap-network:
+    name: tap-network
+    driver: bridge
+
+volumes:
+  mssql_data:
+  maildev_data:
+  redis_data:
+  rabbitmq_data:

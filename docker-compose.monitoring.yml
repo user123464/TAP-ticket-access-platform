@@ -1,0 +1,51 @@
+services:
+
+  prometheus: 
+    image: prom/prometheus:v3.5.4
+    container_name: prometheus
+    restart: unless-stopped
+    environment:
+      TZ: "Asia/Taipei"
+    ports:
+      - "9090:9090"    
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - tap-network
+
+  grafana: 
+    image: grafana/grafana:11.6.16
+    container_name: grafana
+    restart: unless-stopped
+    environment: 
+      TZ: "Asia/Taipei"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - tap-network
+
+  # redis監控
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.86.0
+    container_name: redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-auth_dev_pwd}
+      TZ: "Asia/Taipei"
+    ports:
+      - "9121:9121"
+    networks:
+      - tap-network
+
+networks:
+  tap-network:
+    name: tap-network
+    external: true
+
+volumes:
+  prometheus_data:
+  grafana_data:

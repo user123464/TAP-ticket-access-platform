@@ -1,0 +1,128 @@
+// 1. 先覆寫變數（一定要在 import bootstrap 前）
+$primary: #e57346; // 主色
+$secondary: #64748b; // 次色
+$info: #e2e8f0; // 第三色
+// $success: #10b981;
+// $danger: #ef4444;
+
+// 2. 再引入 bootstrap
+@import "bootstrap/scss/bootstrap";
+
+
+
+//設計調色盤 顏色建議從這裡選
+:root {
+  --tap-primary: #e57346;
+  /* 固定的主色（暖橘） */
+  --tap-dark-blue: #1e293b;
+  /* 深藍灰（極具現代感，代替原本沉悶的深藍） */
+  --tap-light-blue: #64748b;
+  /* 次級文字/圖示用的中度藍灰 */
+  --tap-light-white: #f8fafc;
+  /* 乾淨的暖白（原色 `#f2f5ea` 偏黃綠，容易顯髒） */
+  --tap-light-gray: #e2e8f0;
+  /* 乾淨的淺灰（用於邊框、分隔線） */
+}
+
+/* =========================================================================
+   【TAP 專案客製化全域輔助樣式與覆蓋區塊】
+   (若後續與其他開發人員的樣式產生衝突，可直接將以下區塊刪除即可還原)
+   ========================================================================= */
+
+/* 1. 統一的聚焦外框樣式 (Focus Ring) - 使用專案 primary 主色 */
+.focus-ring:focus {
+  outline: 0;
+  border-color: #cbd5e1 !important;
+  /* 保持乾淨的淺灰框線，與紅框拉開對比 */
+  box-shadow: 0 0 0 3px rgba($primary, 0.12) !important;
+  /* 降低厚度至 3px，降透明度至 12% 的科技感微光 */
+}
+
+/* 2. 虛線邊框，通用於拖曳上傳框或特殊引導卡片 */
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 2px !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 3. 指標手勢 */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* 4. 微動畫效果：滑過卡片向上微移及陰影 */
+.hover-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 4-1. 響應式寬度工具類補齊
+   Bootstrap 5 預設「不」生成 w-{breakpoint}-auto / w-{breakpoint}-100，
+   但專案多處（ThemeManage / AccountSettings / Profile / TicketTypeEdit）已使用
+   `w-100 w-sm-auto` 的寫法，導致 w-sm-auto 為無效類別、按鈕容器在桌機仍吃滿整行、
+   把標題擠到換行。此處補齊實作，讓「手機滿版、桌機自動寬」的原始意圖生效。 */
+@each $breakpoint in (sm, md, lg, xl, xxl) {
+  @include media-breakpoint-up($breakpoint) {
+    .w-#{$breakpoint}-auto { width: auto !important; }
+    .w-#{$breakpoint}-100 { width: 100% !important; }
+  }
+}
+
+/* =========================================================================
+   【TAP 客製化全域輔助樣式與覆蓋區塊 結束】
+   ========================================================================= */
+
+/* 5. B2C 前台連結樣式與 Hover 底線優化 */
+.b2c-wrapper {
+
+  // 僅針對 main 內容區內文連結套用 hover 底線，自然避免污染 Header 導覽列
+  main a:not(.btn) {
+    transition: color 0.15s ease-in-out, text-decoration 0.15s ease-in-out;
+
+    &:hover {
+      text-decoration: underline !important;
+      color: darken($primary, 10%) !important;
+    }
+  }
+
+  // B2C Footer 專用連結 hover 樣式
+  footer a {
+    color: #64748b !important; // text-secondary
+    transition: color 0.15s ease-in-out, text-decoration 0.15s ease-in-out;
+
+    &:hover {
+      color: #1e293b !important; // text-dark-blue on hover
+      text-decoration: underline !important;
+    }
+  }
+}
+
+/* 6. 固定寬度 Loading 按鈕：載入時 spinner 絕對定位置中、文字隱藏(但保留佔位)，
+   避免「文字換成 loading 字樣」造成按鈕寬度跳動（常見於連續點擊防呆情境）。
+   用法：按鈕本身加上 .btn-loading-keep-width，並依 loading 狀態切換 .is-loading；
+   文字包一層 .btn-loading-keep-width__label，spinner 加上 .btn-loading-keep-width__spinner。 */
+.btn-loading-keep-width {
+  position: relative;
+
+  .btn-loading-keep-width__label {
+    transition: opacity 0.1s ease-in-out;
+  }
+
+  &.is-loading {
+    .btn-loading-keep-width__label {
+      opacity: 0;
+    }
+
+    .btn-loading-keep-width__spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0 !important;
+    }
+  }
+}

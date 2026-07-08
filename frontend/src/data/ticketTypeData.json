@@ -1,0 +1,10 @@
+[
+    {
+        "ticket_type_id": 1,
+        "theme_id": 1,
+        "name": "搖滾區",
+        "price": 3000,
+        "is_enabled": 1,
+        "color": "#ef4444"
+    }
+]

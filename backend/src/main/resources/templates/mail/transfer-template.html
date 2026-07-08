@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>【TAP 票務平台】組織所有權轉移確認</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f6f9fc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    <!-- 頂部品牌 Logo 區 -->
+                    <tr>
+                        <td align="center" style="padding: 30px 0 20px 0; border-bottom: 1px solid #edf2f7;">
+                            <span style="font-size: 26px; font-weight: 700; color: #e57346; letter-spacing: -0.5px;">TAP 票務平台</span>
+                        </td>
+                    </tr>
+                    <!-- 信件主體內容 -->
+                    <tr>
+                        <td style="padding: 40px 30px; color: #2d3748; font-size: 16px; line-height: 1.6;">
+                            <p style="margin-top: 0; font-weight: 600; font-size: 18px;">您好！</p>
+                            <p>現任所有人 <strong style="color: #e57346;">{{fromName}}</strong> 邀請您接手組織 <strong style="color: #e57346;">{{orgName}}</strong> 的所有權。</p>
+                            <p>一旦您接受，您將成為該組織的新所有人（Owner），擁有最高管理權限；原所有人將降為一般成員。請點擊下方按鈕確認接手。此確認連結將於 <strong style="color: #e57346;">24 小時後過期</strong>：</p>
+
+                            <!-- 接受轉移按鈕區塊 -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{acceptUrl}}" style="background-color: #e57346; color: #ffffff; padding: 14px 30px; text-decoration: none; font-weight: bold; border-radius: 8px; display: inline-block; font-size: 16px; box-shadow: 0 4px 6px rgba(229, 115, 70, 0.2);">確認接手組織所有權</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size: 13px; color: #718096; line-height: 1.5; margin-bottom: 0; background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #edf2f7; word-break: break-all;">
+                                如果上方按鈕無法點選，請複製此網址在瀏覽器中開啟：<br>
+                                <a href="{{acceptUrl}}" style="color: #e57346; text-decoration: none;">{{acceptUrl}}</a>
+                            </p>
+                            <p style="font-size: 13px; color: #a0aec0; line-height: 1.5; margin-top: 16px; margin-bottom: 0;">
+                                若您並未預期收到此信，或不同意接手，請忽略本郵件，所有權將維持不變。
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- 頁尾 -->
+                    <tr>
+                        <td align="center" style="padding: 20px 30px; background-color: #f7fafc; border-top: 1px solid #edf2f7; font-size: 12px; color: #a0aec0;">
+                            <p style="margin: 0 0 5px 0;">這是一封自動發送的郵件，請勿直接回覆。</p>
+                            <p style="margin: 0;">© 2026 Ticket Access Platform. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

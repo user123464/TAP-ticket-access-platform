@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>【TAP 票務平台】登入安全驗證碼</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f6f9fc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    <!-- 頂部品牌 Logo 區 -->
+                    <tr>
+                        <td align="center" style="padding: 30px 0 20px 0; border-bottom: 1px solid #edf2f7;">
+                            <span style="font-size: 26px; font-weight: 700; color: #e57346; letter-spacing: -0.5px;">TAP 票務平台</span>
+                        </td>
+                    </tr>
+                    <!-- 信件主體內容 -->
+                    <tr>
+                        <td style="padding: 40px 30px; color: #2d3748; font-size: 16px; line-height: 1.6;">
+                            <p style="margin-top: 0; font-weight: 600; font-size: 18px;">登入雙重驗證</p>
+                            <p>我們偵測到一筆登入您 TAP 帳號的請求。為確保是您本人操作，請在登入頁面輸入以下 6 位數驗證碼：</p>
+
+                            <!-- 驗證碼顯示區塊 -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center" style="padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e0;">
+                                        <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #1a202c; font-family: 'Courier New', Courier, monospace; margin-left: 8px;">{{otpCode}}</span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size: 14px; color: #718096; margin-bottom: 0;">此驗證碼有效時間為 5 分鐘。若這不是您本人的登入操作，您的密碼可能已外洩，請盡快變更密碼以確保帳號安全。</p>
+                        </td>
+                    </tr>
+                    <!-- 頁尾 -->
+                    <tr>
+                        <td align="center" style="padding: 20px 30px; background-color: #f7fafc; border-top: 1px solid #edf2f7; font-size: 12px; color: #a0aec0;">
+                            <p style="margin: 0 0 5px 0;">這是一封自動發送的郵件，請勿直接回覆。</p>
+                            <p style="margin: 0;">© 2026 Ticket Access Platform. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

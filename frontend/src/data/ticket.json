@@ -1,0 +1,13 @@
+[
+    {
+        "seat_id": 101,
+        "physical_name": "特區 1排 1號",
+
+        "grid_x_index": 1,
+        "grid_y_index": 1,
+
+        "ticket_type": 2,
+
+        "status": 1
+    }
+]

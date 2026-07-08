@@ -1,0 +1,26 @@
+.vscode/*
+!.vscode/settings.json
+
+# 機密憑證，請勿提交（Google OAuth 等）
+jason-dev-log/google-credentials.json
+*-credentials.json
+.env.local
+.env.*.local
+
+# Claude Code agent 暫存 worktree（完整 repo 複本 + node_modules，會灌爆 Git 變更計數）
+.claude/worktrees/
+
+# 執行期日誌，不應納入版控
+logs/
+backend/logs/
+*.log
+
+# KYC 實名文件等機密個資，絕不納入版控
+backend/documents/secure/
+
+# 私密交接資料夾（僅組員私下取用，不進公開 repo）
+Ending/
+
+# Claude Code / IDE 本機設定
+.claude/
+

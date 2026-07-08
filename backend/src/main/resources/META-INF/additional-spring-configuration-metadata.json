@@ -1,0 +1,74 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key for signing JSON Web Tokens (JWT)."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Expiration time for JWT in seconds."
+    },
+    {
+      "name": "google.oauth.client-id",
+      "type": "java.lang.String",
+      "description": "Google OAuth2 Client ID used for ID Token verification."
+    },
+    {
+      "name": "app.documents.dir",
+      "type": "java.lang.String",
+      "description": "Base directory for application documents and file uploads."
+    },
+    {
+      "name": "app.prometheus.url",
+      "type": "java.lang.String",
+      "description": "Prometheus server URL for backend proxy queries."
+    },
+    {
+      "name": "app.backend-url",
+      "type": "java.lang.String",
+      "description": "Public Spring Boot backend URL for ECPay server callback."
+    },
+    {
+      "name": "app.frontend-url",
+      "type": "java.lang.String",
+      "description": "Frontend application URL for redirection after payment."
+    },
+    {
+      "name": "ecpay.merchant-id",
+      "type": "java.lang.String",
+      "description": "ECPay Merchant ID."
+    },
+    {
+      "name": "ecpay.hash-key",
+      "type": "java.lang.String",
+      "description": "ECPay Hash Key for security validation."
+    },
+    {
+      "name": "ecpay.hash-iv",
+      "type": "java.lang.String",
+      "description": "ECPay Hash IV for security validation."
+    },
+    {
+      "name": "ecpay.api-url",
+      "type": "java.lang.String",
+      "description": "ECPay API URL (Payment gateway page URL)."
+    },
+    {
+      "name": "ecpay.return-url",
+      "type": "java.lang.String",
+      "description": "ECPay Return URL for Server-to-server callback."
+    },
+    {
+      "name": "ecpay.order-result-url",
+      "type": "java.lang.String",
+      "description": "ECPay Order Result URL for client redirection from ECPay page."
+    },
+    {
+      "name": "ecpay.client-back-url",
+      "type": "java.lang.String",
+      "description": "ECPay Client Back URL (Frontend client landing page after payment)."
+    }
+  ]
+}
