@@ -2,23 +2,8 @@
 
 售票 / 拍賣 / 周邊商品的整合平台。採用「一個後端 + 兩個前端(一般使用者站、管理後台) + 基礎設施(資料庫 / 快取 / 訊息佇列 / 監控)」的 monorepo 架構。
 
+> 因為我們團隊初期開發時，將資料庫機敏資訊一起推上了 GitHub。發現這個資安漏洞後，為了徹底清除紀錄，我們決定將歷史 Commit 抹除並重新上傳乾淨的版本。
 > 這是一份可公開的乾淨版原始碼:已移除開發日誌、實名認證文件等個資與真實金鑰。所有機密改由環境變數注入,預設值僅供本機開發,**正式環境務必覆蓋**。
-
----
-
-## 目錄
-
-- [技術棧](#技術棧)
-- [專案結構](#專案結構)
-- [前置需求](#前置需求)
-- [快速開始](#快速開始)
-- [連接埠一覽](#連接埠一覽)
-- [環境變數](#環境變數)
-- [資料庫初始化行為(重要)](#資料庫初始化行為重要)
-- [對外展示 / online 部署](#對外展示--online-部署)
-- [監控(選用)](#監控選用)
-- [壓力測試(選用)](#壓力測試選用)
-- [安全注意事項](#安全注意事項)
 
 ---
 
@@ -56,144 +41,151 @@
 
 ---
 
-## 前置需求
+=============================================================================
 
-- **Docker Desktop**(啟動 SQL Server / Redis / RabbitMQ / MailDev)
-- **JDK 21**
-- **Node.js** `^20.19.0 || >=22.12.0`
-- (選用)ngrok 或 cloudflared — 對外展示金流回呼時使用
+## 核心開發模組與技術
 
----
+本專案中，我獨立負責 **「高併發票務交易系統」、「綠界科技金流整合」、「現場安全核銷系統」與「商戶帳務自動結算平台」** 的全棧架構設計與開發。
+以下為核心功能摘要：
 
-## 快速開始
+### 1. 核心負責範圍與架構
 
-### 1. 啟動基礎設施
-
-```bash
-docker compose build
-docker compose up -d
-# 等 SQL Server 完成初始化
-docker logs -f sqlserver   # 看到 "Database initialization completed." 即可 Ctrl+C
 ```
-
-### 2. 啟動後端(port 8080)
-
-```bash
-cd backend
-# 本機開發:直接跑即可,application.properties 內有開發用預設值
-./mvnw spring-boot:run        # Windows: mvnw.cmd spring-boot:run
-```
-
-> 後端每次啟動都會依 `schema.sql` 重建所有資料表、載入 `data.sql` 種子資料,並清空 Redis。詳見[資料庫初始化行為](#資料庫初始化行為重要)。
-
-### 3. 啟動一般使用者前端(port 5173)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### 4. 啟動管理後台前端(port 5174)
-
-```bash
-cd frontend-admin
-npm install
-npm run dev
-```
-
-開啟瀏覽器:一般站 http://localhost:5173 、後台 http://localhost:5174 。
-
----
-
-## 連接埠一覽
-
-| 服務 | 位址 / 埠 | 說明 |
-|---|---|---|
-| 後端 API | http://localhost:8080 | Spring Boot |
-| 使用者前端 | http://localhost:5173 | Vite dev |
-| 管理後台前端 | http://localhost:5174 | Vite dev |
-| SQL Server | localhost:9433 | DB(容器內 1433) |
-| Redis | localhost:9979 | 快取 / 分散式鎖 |
-| RabbitMQ | http://localhost:15672 | 管理介面(MQ 本體 5672) |
-| MailDev | http://localhost:9080 | 開發用信箱(SMTP 9025) |
-| Prometheus | http://localhost:9090 | 監控(選用) |
-| Grafana | http://localhost:3000 | 儀表板(選用) |
-
----
-
-## 環境變數
-
-**本專案 clone 下來零設定即可啟動**,所有設定都有內建預設值(localhost 那一套)。後端組態集中在 `backend/src/main/resources/application.properties`,以 `${VAR:預設值}` 形式讀取——要換環境(例如正式部署或對外展示)時,只需設定對應環境變數覆蓋,**不需修改程式碼**:
-
-```bash
-# Linux/macOS 範例;Windows 用 setx 或系統環境變數
-export BACKEND_URL='https://你的公開網域'    # 對外展示時金流回呼用
-./mvnw spring-boot:run
-```
-
-前端設定放在各自的 `.env`(開發)/ `.env.online`(對外)。
-
-> ⚠️ **Vite 前端變數在 build 時就編譯進 bundle**,runtime 無法覆蓋。切換後端位址需重新 build。所有 `VITE_*` 值本來就會出現在瀏覽器,屬公開值。
-
----
-
-## 資料庫初始化行為(重要)
-
-本專案預設為「**每次啟動後端都重置資料庫**」的開發模式:
-
-- `spring.sql.init.mode=always` → 每次啟動執行 `schema.sql`(先 `DROP TABLE` 所有資料表再 `CREATE`)與 `data.sql`(重新載入種子資料)。
-- `app.redis.flush-on-startup=true` → 啟動時清空 Redis,與資料庫重置同步。
-
-**這代表後端每次重啟,資料庫內容都會被清空並還原成種子資料。** 若要保留資料(例如正式環境),請改用 `application-prod.properties` 的設定(`spring.sql.init.mode=never`、Redis flush 關閉),或以 `--spring.profiles.active=prod` 啟動。
-
-SQL Server 容器本身(`sqlserver/`)只在第一次啟動時建立 `ProjectDB` 資料庫並以 marker 檔記錄,之後不重複執行;資料表層級的重建則由後端負責。
-
----
-
-## 對外展示 / online 部署
-
-前端 `npm run demo` = `build:online` + `preview`(以 online 模式編譯後啟動預覽伺服器)。
-
-金流(綠界 ECPay)回呼需要「公開可達的後端網址」。展示時:
-
-1. 用 ngrok 或 cloudflared 取得一個公開網址指向本機後端 8080。
-2. 設定後端環境變數 `BACKEND_URL`(公開網址)、`FRONTEND_URL`(前端公開網址)再啟動 — 所有 ECPay 回呼 / 導轉網址會自動跟著改。
-3. 前端以 `npm run demo` 或 `npm run build:online` 產出對應 API 位址的版本。
-
-> 詳細的 online 隧道與真實金流展示 SOP 屬內部資料,不在本公開版中。
-
----
-
-## 監控(選用)
-
-```bash
-# 監控需接到本體的 tap-network,故須先啟動 docker-compose.yml
-docker compose -f docker-compose.monitoring.yml up -d
-```
-
-Prometheus http://localhost:9090 、Grafana http://localhost:3000 。監控服務刻意與主體分離,讓 `docker compose down -v` 重置後端時不會清掉 Grafana 儀表板設定。
-
----
-
-## 壓力測試(選用)
-
-`k6/` 內含 k6 測試腳本(`.js`)。請自行安裝 [k6](https://k6.io/docs/get-started/installation/) 後執行,例如:
-
-```bash
-k6 run k6/v1-warmup-100vu.js
+TAP-ticket-access-platform (核心研發範圍)
+├── 🖥️ frontend (Vue 3 前端)
+│   ├── views/PaymentTicket.vue        (實名購票交易與 15 分鐘精準倒數)
+│   ├── views/OrderTicketCheckIn.vue   (現場相機掃碼核銷端)
+│   └── views/OrganizerSettlement.vue  (主辦方營收看板與結算申請)
+└── ⚙️ backend (Spring Boot 後端)
+    ├── orderTicket/                   (高併發票務模組)
+    │   ├── TicketOrderCreateService   (UUID 冪等性、JPA 效能優化與座位鎖定)
+    │   ├── OrderCleanupScheduler      (Spring Task 定時釋放未付款座位庫存)
+    │   └── TicketCheckInService       (防偽防重複掃碼核銷業務邏輯)
+    ├── payment/ecpay/                 (通用金流整合模組)
+    │   ├── EcpayPaymentService        (AIO 信用卡交易表單生成與 SHA-256 簽章計算)
+    │   └── EcpayCallbackController    (接收綠界 S2S Webhook 非同步安全通知與分發)
+    └── settlements/                   (商戶財務結算模組)
+        └── SettlementService          (自動化營收對帳、比例抽成與財務指標聚合)
 ```
 
 ---
 
-## 安全注意事項
+### 2. 核心業務功能與技術實現
 
-這是一份 **DEMO 專案**,repo 內的密碼(`P@ssw0rd`、`auth_dev_pwd`、`guest`)、JWT 金鑰、綠界 ECPay 沙盒值、Google/Turnstile 公開金鑰都是**開發用公開值**,只保護 localhost 容器,可以被看到。正式上線時再以環境變數覆蓋即可。
+| **功能模組** | 技術層 (Frontend / Backend) | 技術要點與實作機制 |
+| :--- | :--- | :--- |
+| **票務交易與併發控制** | Frontend Vue 3 + Backend `orderTicket` | <ul><li>**高併發防超賣**：座位狀態在 DB 進行庫存鎖定（透過 JPA 樂觀鎖 `@Version` 驗證），並於前端 Pinia 實作 15 分鐘倒數。</li><li>**排程庫存回收**：利用 Spring Task 定時掃描並自動還原過期未付款之座位庫存。</li><li>**介面冪等性防護**：下單時前端帶入 UUID `submitToken`，後端透過 Redis 進行分散式鎖定攔截，防止重複點擊結帳。</li><li>**效能優化**：利用 JPA Proxy (`getReference`) 避免無謂的關聯表查詢，提升高頻寫入效能。</li></ul> |
+| **第三方金流整合** | Backend `payment` (ECPay) | <ul><li>**防篡改加密**：基於綠界 API 規範計算 SHA-256 簽章（`CheckMacValue`）並動態產生自動跳轉之 HTML Form。</li><li>**可靠的非同步 Webhook**：實作 S2S Webhook 非同步通知接口，嚴格驗證簽章，並根據交易單號前綴（票券/周邊）進行動態分發，修改狀態後回傳 `1\|OK` 阻斷金流重複發送。</li></ul> |
+| **現場電子票券核銷** | `OrderTicketCheckIn.vue` + `TicketCheckInService` | <ul><li>**相機掃碼與防偽**：前端調用 `html5-qrcode` 呼叫相機解碼，後端檢驗 QR Code 雜湊與狀態。</li><li>**高安全核銷**：嚴格防範「一票多用」、「重複核銷」與「退票入場」，核銷通過即時更新狀態並寫入核銷時間。</li></ul> |
+| **商戶帳務結算** | `OrganizerSettlement.vue` + `settlements` | <ul><li>**SaaS 自動分帳**：依主辦方抽成比例自動計算平台抽成與淨利潤，產出結算單。</li><li>**營收看板與閉環**：整合 Chart.js 呈現日/月營業趨勢，主辦方可發起撥款申請，由平台管理員審核撥款，完成商業閉環。</li></ul> |
 
-真正該保護、**絕不可放進 repo** 的只有「綁個人帳戶或會計費的 API 金鑰」,例如:
+> 💡 **互動式視覺化工具**：我們已為這四個核心業務模組設計了動態互動式的網頁流程圖！  
+> 👉 [**🌐 點此開啟「核心業務與架構互動式流程圖」網頁版**](file:///c:/Users/davin/Desktop/偉宏/職訓/期末專題/開發/TAP-ticket-access-platform/docs/architecture-flowchart.html)
 
-- Cloudflare API / tunnel token
-- Google Gemini(或其他 AI)API key
-- 正式的金流商店金鑰、雲端儲存(Cloudinary 等)的 API secret、寄信服務金鑰
+#### 核心業務模組關聯與流向圖 (Mermaid)
 
-這類金鑰請一律用環境變數注入,不要 commit。
+```mermaid
+flowchart TD
+    %% 樣式定義
+    classDef fe fill:#2563eb,stroke:#3b82f6,stroke-width:1.5px,color:#fff;
+    classDef be fill:#059669,stroke:#10b981,stroke-width:1.5px,color:#fff;
+    classDef db fill:#d97706,stroke:#f59e0b,stroke-width:1.5px,color:#fff;
+    classDef third fill:#7c3aed,stroke:#8b5cf6,stroke-width:1.5px,color:#fff;
+
+    %% 模組 1: 票務交易與併發
+    subgraph M1 ["1. 票務交易 & 併發控制"]
+        F1[Vue Pinia 15分倒數]:::fe
+        B1[orderTicket 樂觀鎖 & Proxy]:::be
+        R1[(Redis submitToken 鎖)]:::db
+    end
+
+    %% 模組 2: 第三方金流
+    subgraph M2 ["2. 第三方金流 (ECPay)"]
+        B2_Sign[SHA-256 簽章產生]:::be
+        B2_S2S[Webhook 接收 & 簽章驗證]:::be
+        T2[綠界付款 Form/API]:::third
+    end
+
+    %% 模組 3: 現場核銷
+    subgraph M3 ["3. 電子票券現場核銷"]
+        F3[html5-qrcode 相機掃碼]:::fe
+        B3[TicketCheckInService 三防驗證]:::be
+    end
+
+    %% 模組 4: 商戶結算
+    subgraph M4 ["4. 商戶帳務結算"]
+        B4[SettlementService 自動分帳]:::be
+        F4[Chart.js 營收看板 & 提款審核]:::fe
+    end
+
+    DB[(JPA SQL Database)]:::db
+
+    %% 關聯線
+    F1 -->|逾期未付釋放| B1
+    B1 -->|寫入鎖定狀態| DB
+    R1 -.->|防重複提交| B1
+    
+    B1 -->|下單發起| B2_Sign
+    B2_Sign -->|動態跳轉| T2
+    T2 -->|非同步回呼| B2_S2S
+    B2_S2S -->|更新訂單 PAID| DB
+    
+    F3 -->|傳送票券雜湊| B3
+    B3 -->|核銷驗證與更新| DB
+    
+    DB -->|定期抓取已核銷流水| B4
+    B4 -->|分帳後利潤展示| F4
+```
+
+---
+
+## 核心交易與金流運作機制
+
+### 1. 購票鎖定與支付 Webhook 運作流程
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 會員 (Vue 前端)
+    participant BE as 後端 (Spring Boot)
+    participant Redis as Redis 快取
+    participant DB as 資料庫 (JPA)
+    participant ECPay as 綠界支付金流
+    participant Sch as 定時排程 (Scheduler)
+
+    %% 庫存鎖定階段
+    User->>BE: 1. 點擊座位發起鎖定
+    BE->>DB: 以樂觀鎖更新座位狀態為「鎖定中」 (標註鎖定 15 分鐘)
+    BE-->>User: 鎖定成功，前端開啟 15 分鐘付款倒數
+    
+    %% 逾期釋放背景
+    Note over DB, Sch: 【背景排程】 偵測到鎖定逾時
+    Sch->>DB: 自動釋放逾期未付款座位為「可售」
+
+    %% 付款交易階段
+    User->>BE: 2. 提交訂單 (夾帶 submitToken 避免重複扣款)
+    BE->>Redis: 鎖定 submitToken 確保冪等性
+    BE->>BE: 計算安全簽章 (CheckMacValue) 並產出支付 Form
+    BE-->>User: 回傳 HTML 自動提交表單
+    User->>ECPay: 跳轉並完成信用卡刷卡
+
+    %% 金流非同步回呼
+    rect rgb(235, 247, 235)
+        Note over BE, ECPay: 【非同步 S2S Webhook】
+        ECPay->>BE: POST /api/checkout/ecpay-callback
+        BE->>BE: 驗證 CheckMacValue 簽章合法性
+        BE->>DB: 更新訂單為「已付款」，產生門票與雜湊 QR Code
+        BE-->>ECPay: 回傳 "1|OK" 停止重送
+    end
+
+    ECPay-->>User: 重定向回前端付款成功頁面 (並渲染電子 QR Code)
+```
+
+### 2. 現場核銷與營收結算流程
+
+*   **安全防偽核銷**：
+    現場人員透過手機端調用 `html5-qrcode` 掃描門票。後端 `TicketCheckInService` 執行三防校驗：
+    1. **防無效**：檢驗資料庫中該門票的 QR Code 雜湊值是否存在。
+    2. **防退票**：檢驗該門票狀態是否為「已付款（PAID）」且未申請退款。
+    3. **防多用**：校驗 `is_used` 狀態，若是 `Redeemed`（已使用）則拒絕入場，防止二度核銷與複製票券。
+*   **商戶帳務結算**：
+    `SettlementService` 定期拉取已核銷之交易流水，依各主辦方合約抽成比例計算平台抽成與主辦方淨營業額，建立撥款申請。管理員確認無誤後手動/自動撥付，完成 SaaS 平台的財務閉環。

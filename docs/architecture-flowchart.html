@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAP 票務接入平台 - 核心架構與業務流程圖</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mermaid JS CDN -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-hover:hover {
+            background: rgba(31, 41, 55, 0.8);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
+        }
+        .neon-glow-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        .neon-glow-emerald {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+        .neon-glow-purple {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+        .neon-glow-amber {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 glass border-b border-gray-800 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center neon-glow-blue">
+                    <i class="fa-solid fa-ticket text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">TAP Ticket Access Platform</h1>
+                    <p class="text-xs text-blue-400 font-medium tracking-wider">核心業務技術流程看板</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">Vue 3 + Spring Boot</span>
+                <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Redis + JPA</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Sidebar Navigation / Tech Info -->
+        <section class="lg:col-span-4 flex flex-col space-y-6">
+            <div class="glass rounded-2xl p-6">
+                <h2 class="text-lg font-bold mb-4 text-white flex items-center">
+                    <i class="fa-solid fa-layer-group text-blue-400 mr-2"></i>核心業務模組
+                </h2>
+                <p class="text-sm text-gray-400 mb-6">點擊下方模組切換對應流程圖，點擊流程圖中的節點可查看詳細技術細節。</p>
+
+                <!-- Module Cards -->
+                <div class="space-y-4">
+                    <!-- Module 1 -->
+                    <button onclick="switchTab('concurrency')" id="btn-concurrency" class="w-full text-left p-4 rounded-xl border glass border-gray-800 transition-all duration-300 active-card glass-hover border-blue-500/50 bg-blue-950/20">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-white">票務交易與併發控制</h3>
+                                    <p class="text-xs text-gray-400 mt-1">高併發防超賣 & 鎖定機制</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">併發防護</span>
+                        </div>
+                    </button>
+
+                    <!-- Module 2 -->
+                    <button onclick="switchTab('payment')" id="btn-payment" class="w-full text-left p-4 rounded-xl border glass border-gray-800 transition-all duration-300 glass-hover">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-white">第三方金流整合 (ECPay)</h3>
+                                    <p class="text-xs text-gray-400 mt-1">SHA-256 簽章與非同步通知</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">第三方金流</span>
+                        </div>
+                    </button>
+
+                    <!-- Module 3 -->
+                    <button onclick="switchTab('checkin')" id="btn-checkin" class="w-full text-left p-4 rounded-xl border glass border-gray-800 transition-all duration-300 glass-hover">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-white">現場電子票券核銷</h3>
+                                    <p class="text-xs text-gray-400 mt-1">掃碼解碼與防重複核銷</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">安全防護</span>
+                        </div>
+                    </button>
+
+                    <!-- Module 4 -->
+                    <button onclick="switchTab('settlement')" id="btn-settlement" class="w-full text-left p-4 rounded-xl border glass border-gray-800 transition-all duration-300 glass-hover">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-white">商戶帳務結算</h3>
+                                    <p class="text-xs text-gray-400 mt-1">SaaS 自動分帳與對帳閉環</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">帳務對帳</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detail Tech Spec Panels -->
+            <div class="glass rounded-2xl p-6 flex-grow flex flex-col">
+                <h2 class="text-lg font-bold mb-4 text-white flex items-center">
+                    <i class="fa-solid fa-microchip text-indigo-400 mr-2"></i>技術細節說明
+                </h2>
+                <div id="tech-details" class="text-sm text-gray-300 space-y-4 flex-grow overflow-y-auto">
+                    <!-- Default Concurrency Tech Specs -->
+                    <div id="tech-concurrency" class="space-y-4">
+                        <div class="p-3 bg-blue-950/20 border border-blue-900/50 rounded-lg">
+                            <h4 class="font-semibold text-blue-400 flex items-center"><i class="fa-solid fa-shield mr-2"></i>高併發防超賣</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                後端採用 JPA 樂觀鎖 <code>@Version</code> 驗證。在高頻寫入時，若偵測到版本衝突，系統會拋出並處理 <code>OptimisticLockingFailureException</code>。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-blue-950/20 border border-blue-900/50 rounded-lg">
+                            <h4 class="font-semibold text-blue-400 flex items-center"><i class="fa-solid fa-clock mr-2"></i>Pinia 15分鐘倒數</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                前端點擊鎖定座位後，Pinia 狀態機開啟倒數計時，同步將座位臨時保留。若超時未發起付款，系統將觸發排程回收機制。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-blue-950/20 border border-blue-900/50 rounded-lg">
+                            <h4 class="font-semibold text-blue-400 flex items-center"><i class="fa-solid fa-key mr-2"></i>介面冪等性防護</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                下單時前端生成唯一的 UUID <code>submitToken</code>。後端調用 Redis 設置具有過期時間的 Key，作為分散式鎖，攔截 3 秒內的重複點擊請求。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-blue-950/20 border border-blue-900/50 rounded-lg">
+                            <h4 class="font-semibold text-blue-400 flex items-center"><i class="fa-solid fa-rocket mr-2"></i>JPA Proxy 優化</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                執行 <code>orderTicket</code> 時使用 <code>entityManager.getReference()</code> 載入關聯實體，避免無謂的 <code>JOIN</code> 查詢，顯著降低高頻寫入下的資料庫負荷。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Tech Specs (Hidden initially) -->
+                    <div id="tech-payment" class="space-y-4 hidden">
+                        <div class="p-3 bg-emerald-950/20 border border-emerald-900/50 rounded-lg">
+                            <h4 class="font-semibold text-emerald-400 flex items-center"><i class="fa-solid fa-lock-open mr-2"></i>SHA-256 簽章加密</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                基於綠界 API 規範，將所有交易請求參數按字母排序，串接 HashKey 與 HashIV 後進行 URL 編碼，最終以 SHA-256 加密生成 <code>CheckMacValue</code>。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-emerald-950/20 border border-emerald-900/50 rounded-lg">
+                            <h4 class="font-semibold text-emerald-400 flex items-center"><i class="fa-solid fa-sign-in mr-2"></i>動態跳轉 Form 表單</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                後端處理完金流參數後，動態產生內嵌 Auto-Submit JS 的 HTML Form 回傳給前端，達到無感重新導向至金流付款頁面。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-emerald-950/20 border border-emerald-900/50 rounded-lg">
+                            <h4 class="font-semibold text-emerald-400 flex items-center"><i class="fa-solid fa-satellite-dish mr-2"></i>可靠 Webhook & 冪等性</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                提供 S2S Webhook 回呼。後端嚴格驗證綠界回傳的簽章，解析交易單號前綴（如 Ticket_ 或 Goods_）路由對應業務。修改資料庫狀態後，回傳 <code>1|OK</code> 回應以阻斷後續的重發機制。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Check-in Tech Specs (Hidden initially) -->
+                    <div id="tech-checkin" class="space-y-4 hidden">
+                        <div class="p-3 bg-purple-950/20 border border-purple-900/50 rounded-lg">
+                            <h4 class="font-semibold text-purple-400 flex items-center"><i class="fa-solid fa-camera mr-2"></i>前端 QR Code 掃碼</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                調用 <code>html5-qrcode</code> 套件取得本機相機存取權，偵測 QR Code 條碼並即時解密提取雜湊簽章，免除原生 APP 的依賴。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-purple-950/20 border border-purple-900/50 rounded-lg">
+                            <h4 class="font-semibold text-purple-400 flex items-center"><i class="fa-solid fa-shield-halved mr-2"></i>三防核銷機制 (3-Defense)</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                <strong>1. 防無效：</strong>驗證資料庫中雜湊值是否存在與合法。<br>
+                                <strong>2. 防退票：</strong>狀態必須為 <code>PAID</code>，且未申請退款。<br>
+                                <strong>3. 防多用：</strong>校驗 <code>is_used</code> 狀態，已核銷則直接拒絕。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-purple-950/20 border border-purple-900/50 rounded-lg">
+                            <h4 class="font-semibold text-purple-400 flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2"></i>即時原子操作</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                核銷通過時，於資料庫事務中原子更新 <code>is_used = true</code> 且記錄 <code>checked_in_at</code>，有效杜絕高併發下的重複核銷漏洞。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Settlement Tech Specs (Hidden initially) -->
+                    <div id="tech-settlement" class="space-y-4 hidden">
+                        <div class="p-3 bg-amber-950/20 border border-amber-900/50 rounded-lg">
+                            <h4 class="font-semibold text-amber-400 flex items-center"><i class="fa-solid fa-percent mr-2"></i>SaaS 自動分帳</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                主辦方設定抽成比例（例：5%）。<code>SettlementService</code> 會依結算週期彙整已核銷訂單，自動分流平台抽成和主辦方應得之淨利潤。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-amber-950/20 border border-amber-900/50 rounded-lg">
+                            <h4 class="font-semibold text-amber-400 flex items-center"><i class="fa-solid fa-chart-line mr-2"></i>營收看板與趨勢</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                前端串接 Chart.js 與後端營收統計接口，動態渲染日營業額、月趨勢、退票率等商業指標，提供主辦方一目了然的儀表板。
+                            </p>
+                        </div>
+                        <div class="p-3 bg-amber-950/20 border border-amber-900/50 rounded-lg">
+                            <h4 class="font-semibold text-amber-400 flex items-center"><i class="fa-solid fa-circle-check mr-2"></i>提款審核閉環</h4>
+                            <p class="text-xs text-gray-400 mt-1">
+                                主辦方可於後台申請提款。系統產生付款單後，需由平台管理員手動核對帳務資訊並點擊審核通過，串接撥款以確保資金安全性。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side Diagram Area -->
+        <section class="lg:col-span-8 flex flex-col space-y-6">
+            <div class="glass rounded-2xl p-6 flex-grow flex flex-col min-h-[500px]">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-4 mb-6">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                        <h2 class="text-sm font-semibold text-gray-400 ml-4" id="diagram-title">系統架構流程圖 - 票務交易與併發控制</h2>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="zoom(0.1)" class="px-2.5 py-1 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-300"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                        <button onclick="zoom(-0.1)" class="px-2.5 py-1 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-300"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                        <button onclick="resetZoom()" class="px-2.5 py-1 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-300"><i class="fa-solid fa-rotate-left"></i></button>
+                    </div>
+                </div>
+
+                <!-- Interactive Flowchart Container -->
+                <div class="flex-grow flex items-center justify-center bg-slate-950/40 rounded-xl p-4 overflow-auto border border-gray-850 relative" id="canvas-container">
+                    <div id="diagram-view" class="w-full transform origin-center transition-transform duration-200">
+                        <!-- Concurrency Diagram -->
+                        <div id="diag-concurrency" class="mermaid-diagram">
+                            <pre class="mermaid">
+                            flowchart TD
+                                classDef fe fill:#2563eb,stroke:#3b82f6,stroke-width:2px,color:#fff;
+                                classDef be fill:#059669,stroke:#10b981,stroke-width:2px,color:#fff;
+                                classDef db fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#fff;
+                                classDef cache fill:#dc2626,stroke:#ef4444,stroke-width:2px,color:#fff;
+
+                                User([會員前端]):::fe -->|1. 點擊座位鎖定| Pinia[Pinia 狀態庫]:::fe
+                                Pinia -->|15分鐘付款倒數| BE_Order[orderTicket 後端模組]:::be
+                                BE_Order -->|樂觀鎖驗證 @Version| DB_Lock[(資料庫座位表)]:::db
+                                
+                                User -->|2. 提交訂單 + submitToken| BE_Order
+                                BE_Order -->|Redis 分散式鎖阻斷重複提交| Redis_Lock[Redis 冪等性防護]:::cache
+                                BE_Order -->|JPA Proxy getReference| DB_Assoc[(關聯表讀取優化)]:::db
+
+                                Scheduler[Spring Task 定時排程]:::be -->|逾期未付款| DB_Lock
+                            </pre>
+                        </div>
+
+                        <!-- Payment Diagram -->
+                        <div id="diag-payment" class="mermaid-diagram hidden">
+                            <pre class="mermaid">
+                            flowchart TD
+                                classDef fe fill:#2563eb,stroke:#3b82f6,stroke-width:2px,color:#fff;
+                                classDef be fill:#059669,stroke:#10b981,stroke-width:2px,color:#fff;
+                                classDef db fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#fff;
+                                classDef ecpay fill:#7c3aed,stroke:#8b5cf6,stroke-width:2px,color:#fff;
+
+                                FE[Vue 前端頁面]:::fe -->|1. 提交訂單| BE_Pay[payment 後端模組]:::be
+                                BE_Pay -->|SHA-256 加密 CheckMacValue| BE_Pay
+                                BE_Pay -->|2. 回傳自動跳轉 Form| FE
+                                FE -->|3. POST 提交| ECPay[綠界 ECPay 金流頁面]:::ecpay
+                                ECPay -->|4. 交易完成, 轉回前端| FE
+
+                                ECPay -->|5. 交易成功 Webhook| Webhook[S2S Webhook 接口]:::be
+                                Webhook -->|驗證簽章與單號前綴分發| DB_Order[(資料庫訂單狀態更新)]:::db
+                                Webhook -->|6. 回傳 1|OK 阻斷重送| ECPay
+                            </pre>
+                        </div>
+
+                        <!-- Checkin Diagram -->
+                        <div id="diag-checkin" class="mermaid-diagram hidden">
+                            <pre class="mermaid">
+                            flowchart TD
+                                classDef fe fill:#2563eb,stroke:#3b82f6,stroke-width:2px,color:#fff;
+                                classDef be fill:#059669,stroke:#10b981,stroke-width:2px,color:#fff;
+                                classDef db fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#fff;
+
+                                App[現場端 Vue 頁面]:::fe -->|1. 開啟相機掃碼| html5[html5-qrcode 解碼]:::fe
+                                html5 -->|2. 解析 QR Code 雜湊碼| BE_CheckIn[TicketCheckInService]:::be
+                                
+                                subgraph 3-Defense [後端三防校驗]
+                                    Validate_Exist{1. 防無效: 存在性雜湊驗證}
+                                    Validate_Paid{2. 防退票: 狀態是否為 PAID}
+                                    Validate_Used{3. 防多用: is_used == false}
+                                end
+                                
+                                BE_CheckIn --> Validate_Exist
+                                Validate_Exist -->|通過| Validate_Paid
+                                Validate_Paid -->|通過| Validate_Used
+                                
+                                Validate_Used -->|通過| DB_CheckIn[(資料庫: 標記已使用 & 記錄核銷時間)]:::db
+                                Validate_Exist -->|失敗| Reject[拒絕核銷 / 報警提示]:::fe
+                                Validate_Paid -->|失敗| Reject
+                                Validate_Used -->|失敗| Reject
+                            </pre>
+                        </div>
+
+                        <!-- Settlement Diagram -->
+                        <div id="diag-settlement" class="mermaid-diagram hidden">
+                            <pre class="mermaid">
+                            flowchart TD
+                                classDef fe fill:#2563eb,stroke:#3b82f6,stroke-width:2px,color:#fff;
+                                classDef be fill:#059669,stroke:#10b981,stroke-width:2px,color:#fff;
+                                classDef db fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#fff;
+
+                                DB_Flows[(資料庫已核銷流水)]:::db -->|定期拉取交易| SettlementService[SettlementService]:::be
+                                SettlementService -->|依主辦方比例自動分帳| ProfitCalc[計算平台抽成與淨營業額]:::be
+                                ProfitCalc -->|產生帳單| DB_Bill[(結算單資料庫)]:::db
+                                
+                                FE_Settle[主辦方後台 Vue 看板]:::fe -->|Chart.js 讀取渲染營收| ProfitCalc
+                                FE_Settle -->|發起撥款申請| Apply[撥款審核流程]:::be
+                                Apply -->|平台管理員核可| Completed[完成撥款閉環]:::be
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass border-t border-gray-800 text-center py-6 text-xs text-gray-500 mt-auto">
+        <p>© 2026 TAP Ticket Access Platform - 核心技術文件</p>
+    </footer>
+
+    <!-- Interactive script -->
+    <script>
+        let zoomLevel = 1.0;
+        const diagramView = document.getElementById('diagram-view');
+
+        const titleMap = {
+            'concurrency': '系統架構流程圖 - 票務交易與併發控制',
+            'payment': '系統架構流程圖 - 第三方金流整合 (ECPay)',
+            'checkin': '系統架構流程圖 - 現場電子票券核銷',
+            'settlement': '系統架構流程圖 - 商戶帳務結算'
+        };
+
+        function switchTab(tabId) {
+            // Update button styles
+            const buttons = ['concurrency', 'payment', 'checkin', 'settlement'];
+            buttons.forEach(id => {
+                const btn = document.getElementById('btn-' + id);
+                const tech = document.getElementById('tech-' + id);
+                const diag = document.getElementById('diag-' + id);
+                
+                if (id === tabId) {
+                    btn.classList.add('border-blue-500/50', 'bg-blue-950/20');
+                    tech.classList.remove('hidden');
+                    diag.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('border-blue-500/50', 'bg-blue-950/20');
+                    tech.classList.add('hidden');
+                    diag.classList.add('hidden');
+                }
+            });
+
+            // Update title
+            document.getElementById('diagram-title').innerText = titleMap[tabId];
+            resetZoom();
+        }
+
+        function zoom(amount) {
+            zoomLevel = Math.max(0.5, Math.min(2.0, zoomLevel + amount));
+            diagramView.style.transform = `scale(${zoomLevel})`;
+        }
+
+        function resetZoom() {
+            zoomLevel = 1.0;
+            diagramView.style.transform = `scale(${zoomLevel})`;
+        }
+    </script>
+</body>
+</html>
